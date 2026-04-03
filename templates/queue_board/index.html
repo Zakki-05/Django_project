@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="glass-card">
+    <div class="status-header">
+        <div class="status-box">
+            <div class="status-label">Now Serving</div>
+            <div class="status-value" id="now-serving">-</div>
+        </div>
+        <div class="status-box">
+            <div class="status-label">Last Issued</div>
+            <div class="status-value" id="last-issued">-</div>
+        </div>
+    </div>
+
+    <div class="main-header" style="padding-top:0; padding-bottom: 1.5rem;">
+        <h2>Get Your Token</h2>
+        <p style="color: var(--text-muted); font-size: 0.75rem;">Digital Registration System</p>
+    </div>
+    
+    <form id="token-form" action="{% url 'generate_token' %}" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" id="name" name="name" required placeholder="Enter your name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-phone input-icon"></i>
+                <input type="tel" id="phone" name="phone" required placeholder="10 Digits" pattern="[0-9]{10}">
+            </div>
+            <p id="phone-error" style="color: var(--danger); font-size: 0.7rem; margin-top: 0.4rem; display: none;">Please enter exactly 10 digits.</p>
+        </div>
+        <div class="form-group">
+            <label for="dept">Select Department</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-hospital-user input-icon"></i>
+                <select id="dept" name="department" required>
+                    <option value="" disabled selected>Choose Specialty</option>
+                    <option value="GENERAL">General Physician</option>
+                    <option value="PEDIATRICS">Pediatrics</option>
+                    <option value="DENTAL">Dental</option>
+                </select>
+                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit-btn" style="display: flex; align-items: center; justify-content: center;">
+            <div class="spinner" id="btn-spinner"></div>
+            <span>Generate Token</span>
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/app.js' %}"></script>
+<script>
+    // Simple client-side status polling for index
+    function pollIndexStatus() {
+        fetch('/api/status/')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('now-serving').innerText = data.serving || '-';
+                document.getElementById('last-issued').innerText = data.last_issued || '-';
+            });
+    }
+    
+    // Initial and periodic poll
+    pollIndexStatus();
+    setInterval(pollIndexStatus, 5000);
+
+    // Form Handling: Spinner and Validation
+    const form = document.getElementById('token-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const spinner = document.getElementById('btn-spinner');
+    const phoneInput = document.getElementById('phone');
+    const phoneError = document.getElementById('phone-error');
+
+    form.addEventListener('submit', (e) => {
+        if (phoneInput.value.length !== 10) {
+            e.preventDefault();
+            phoneError.style.display = 'block';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        spinner.style.display = 'inline-block';
+        submitBtn.querySelector('span').innerText = 'Processing...';
+    });
+</script>
+{% endblock %}

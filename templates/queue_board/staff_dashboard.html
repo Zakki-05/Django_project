@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<!-- Optional: Add Meta refresh if JS fetch is not used, but we can do simple JS refresh -->
+<meta http-equiv="refresh" content="10">
+<style>
+    .container { max-width: 900px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="staff-container glass-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <h2>Staff Dashboard</h2>
+        <form action="{% url 'staff_logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary" style="padding:0.5rem 1rem;">Logout</button>
+        </form>
+    </div>
+    
+    <!-- Manual Booking Section -->
+    <div style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 15px;">
+        <h3 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.1rem;">Manual Patient Booking</h3>
+        <form action="{% url 'staff_manual_booking' %}" method="POST" style="display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 1rem; align-items: end;">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="m_name" style="font-size: 0.8rem; margin-bottom: 0.3rem;">Patient Name</label>
+                <input type="text" id="m_name" name="name" required placeholder="Name" style="padding: 0.7rem;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="m_phone" style="font-size: 0.8rem; margin-bottom: 0.3rem;">Phone</label>
+                <input type="tel" id="m_phone" name="phone" required placeholder="Phone" style="padding: 0.7rem;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.7rem;">
+                <input type="checkbox" id="m_prio" name="is_priority" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="m_prio" style="color: var(--warning); font-size: 0.9rem; cursor: pointer;">Priority</label>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 0.7rem 1.5rem; width: auto; font-size: 0.9rem;">Book Now</button>
+        </form>
+    </div>
+
+    <div class="grid-2">
+        <!-- Currently Serving -->
+        <div class="staff-card" style="background:rgba(255, 107, 107, 0.1); border-radius:10px; border:1px solid var(--danger);">
+            <h3 style="color:var(--danger); margin-bottom:1rem;">Currently Serving</h3>
+            {% if serving_tokens %}
+                {% for tok in serving_tokens %}
+                <div class="token-item">
+                    <div>
+                        <strong style="font-size:1.5rem; color:var(--text-main);">#{{ tok.token_number }}</strong>
+                        <div style="font-size:0.9rem; color:var(--text-muted);">{{ tok.patient.name }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+                <form action="{% url 'staff_action' %}" method="POST" style="margin-top:1rem;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="CALL_NEXT">
+                    <button type="submit" class="btn btn-primary">Complete & Call Next</button>
+                </form>
+            {% else %}
+                <p style="color:var(--text-muted);">No one is currently being served.</p>
+                <form action="{% url 'staff_action' %}" method="POST" style="margin-top:1rem;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="CALL_NEXT">
+                    <button type="submit" class="btn btn-primary">Call Next Patient</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <!-- Waiting Queue -->
+        <div class="staff-card" style="background:rgba(100, 255, 218, 0.05); border-radius:10px; border:1px solid var(--card-border);">
+            <h3 style="color:var(--accent); margin-bottom:1rem;">Waiting Queue (Active)</h3>
+            <div style="max-height: 400px; overflow-y:auto; padding-right:10px;">
+                {% if active_tokens %}
+                    {% for tok in active_tokens %}
+                    <div class="token-item">
+                        <div>
+                            <strong style="font-size:1.2rem; color:var(--text-main);">#{{ tok.token_number }}</strong>
+                            {% if tok.is_priority %}<span style="color:var(--warning); font-size:0.8rem; margin-left:5px;">(Priority)</span>{% endif %}
+                            <div style="font-size:0.9rem; color:var(--text-muted);">{{ tok.patient.name }}</div>
+                        </div>
+                        <div class="token-actions">
+                            <form action="{% url 'staff_action' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="token_id" value="{{ tok.id }}">
+                                <input type="hidden" name="action" value="SKIP">
+                                <button type="submit" class="btn btn-secondary" style="border-color:var(--warning); color:var(--warning);">Skip</button>
+                            </form>
+                            <form action="{% url 'staff_action' %}" method="POST" style="margin-left:5px;">
+                                {% csrf_token %}
+                                <input type="hidden" name="token_id" value="{{ tok.id }}">
+                                <input type="hidden" name="action" value="COMPLETE">
+                                <button type="submit" class="btn btn-secondary" style="border-color:var(--success); color:var(--success);">Done</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color:var(--text-muted);">No active tokens waiting.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Inactive / Pre-booked Section -->
+    <div class="staff-card" style="margin-top: 2rem; background: rgba(255, 255, 255, 0.02); border-radius: 10px; border: 1px solid var(--card-border); padding: 1.5rem;">
+        <h3 style="color: var(--text-muted); margin-bottom: 1rem;">Pre-booked (Outside 1km Range)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+            {% if inactive_tokens %}
+                {% for tok in inactive_tokens %}
+                <div class="token-item" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                    <div>
+                        <strong style="font-size: 1.1rem; color: var(--text-main);">#{{ tok.token_number }}</strong>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">{{ tok.patient.name }}</div>
+                    </div>
+                    <form action="{% url 'staff_action' %}" method="POST" style="width: 100%;">
+                        {% csrf_token %}
+                        <input type="hidden" name="token_id" value="{{ tok.id }}">
+                        <input type="hidden" name="action" value="ACTIVATE">
+                        <button type="submit" class="btn btn-warning" style="padding: 0.4rem; font-size: 0.8rem;">Activate / Book</button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--text-muted); font-size: 0.9rem;">No inactive pre-bookings today.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

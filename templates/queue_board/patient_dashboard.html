@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div id="patient-dashboard" class="glass-card success-card">
+    <div style="text-align: center;">
+        <span id="token-status" class="status-badge status-{{ token.status }}">{{ token.status }}</span>
+        
+        <div class="token-circle">
+            <span>Token Number</span>
+            <h2 id="user-token-display">#{{ token.token_number }}</h2>
+            <p style="font-size: 0.8rem; font-weight: 600; margin-top: 5px;">{{ token.patient.name }}</p>
+        </div>
+
+        <div class="qr-placeholder">
+            <!-- Placeholder for QR Code integration -->
+        </div>
+        
+        <div class="queue-info">
+            <div class="info-box">
+                <div class="info-label">Now Serving</div>
+                <div class="info-value" id="serving-token">-</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Est. Wait</div>
+                <div class="info-value" id="est-wait-time">- mins</div>
+            </div>
+        </div>
+        
+        <p id="location-msg" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Initializing Location Sync...</p>
+        
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
+            <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Clinic Address</p>
+            <p style="font-size: 0.8rem; font-weight: 500; margin-top: 0.3rem;">WPP8+HF Peranampattu, Tamil Nadu</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/app.js' %}"></script>
+{% endblock %}
