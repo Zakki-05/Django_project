@@ -94,8 +94,8 @@ def activate_token(request):
 
 def queue_status_api(request):
     """ API for polling by patients/staff """
-    # Auto-expire tokens older than 15 minutes that are still inactive
-    expiration_time = timezone.now() - timedelta(minutes=15)
+    # Auto-expire tokens older than 120 minutes that are still inactive
+    expiration_time = timezone.now() - timedelta(minutes=120)
     Token.objects.filter(
         date=timezone.now().date(),
         status='INACTIVE',
@@ -153,8 +153,8 @@ def staff_logout_view(request):
 @login_required(login_url='staff_login')
 def staff_dashboard(request):
     serving_tokens = Token.objects.filter(date=timezone.now().date(), status='SERVING').order_by('token_number')
-    active_tokens = Token.objects.filter(date=timezone.now().date(), status='ACTIVE')
-    inactive_tokens = Token.objects.filter(date=timezone.now().date(), status='INACTIVE')
+    active_tokens = Token.objects.filter(date=timezone.now().date(), status='ACTIVE').order_by('token_number')
+    inactive_tokens = Token.objects.filter(date=timezone.now().date(), status='INACTIVE').order_by('token_number')
     return render(request, 'queue_board/staff_dashboard.html', {
         'serving_tokens': serving_tokens,
         'active_tokens': active_tokens,
