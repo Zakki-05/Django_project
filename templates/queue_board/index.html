@@ -32,7 +32,7 @@
             <label for="phone">Phone Number</label>
             <div class="input-wrapper">
                 <i class="fa-solid fa-phone input-icon"></i>
-                <input type="tel" id="phone" name="phone" placeholder="10 Digits (Optional)" pattern="[0-9]{10}">
+                <input type="tel" id="phone" name="phone" required placeholder="10 Digits" pattern="[0-9]{10}">
             </div>
             <p id="phone-error" style="color: var(--danger); font-size: 0.7rem; margin-top: 0.4rem; display: none;">Please enter exactly 10 digits.</p>
         </div>
@@ -82,8 +82,7 @@
     const phoneError = document.getElementById('phone-error');
 
     form.addEventListener('submit', (e) => {
-        const phoneVal = phoneInput.value.trim();
-        if (phoneVal !== "" && phoneVal.length !== 10) {
+        if (phoneInput.value.length !== 10) {
             e.preventDefault();
             phoneError.style.display = 'block';
             return;

@@ -15,7 +15,7 @@ class ClinicSetting(models.Model):
 
 class Patient(models.Model):
     name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    phone_number = models.CharField(max_length=15, unique=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
