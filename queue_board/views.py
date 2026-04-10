@@ -156,15 +156,20 @@ def staff_login_view(request):
         return redirect('staff_dashboard')
         
     if request.method == 'POST':
-        u = request.POST.get('username')
-        p = request.POST.get('password')
+        u = request.POST.get('username', '').strip()
+        p = request.POST.get('password', '')
         
-        # Fix for Render Ephemeral DB: Instantly create accounts if wiped
+        # Fix for Render Ephemeral DB & Mobile Auto-Capitalization: 
         from django.contrib.auth.models import User
-        if u == 'admin' and p == 'admin123':
+        
+        login_u = u.lower()
+        
+        if login_u == 'admin' and p == 'admin123':
+            u = 'admin' # override for authenticate to match exact DB username
             if not User.objects.filter(username='admin').exists():
                 User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-        elif u == 'staff' and p == 'staff123':
+        elif login_u == 'staff' and p == 'staff123':
+            u = 'staff' # override for authenticate to match exact DB username
             if not User.objects.filter(username='staff').exists():
                 staff_user = User.objects.create_user('staff', 'staff@example.com', 'staff123')
                 staff_user.is_staff = True
