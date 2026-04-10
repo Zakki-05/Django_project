@@ -32,15 +32,24 @@ def generate_token(request):
         phone = request.POST.get('phone', '').strip()
         dept = request.POST.get('department', 'GENERAL')
 
-        # Basic validation
-        if not name or not phone or len(phone) != 10 or not phone.isdigit():
-            messages.error(request, 'Please enter a valid name and 10-digit phone number.')
+        # Basic validation for name
+        if not name:
+            messages.error(request, 'Please enter your name.')
+            return redirect('index')
+
+        # Phone is optional, but if provided, it must be 10 digits
+        if phone and (len(phone) != 10 or not phone.isdigit()):
+            messages.error(request, 'Please enter a valid 10-digit phone number or leave it blank.')
             return redirect('index')
 
         # Get or create patient record
-        patient, _ = Patient.objects.get_or_create(
-            phone_number=phone, defaults={'name': name}
-        )
+        if phone:
+            patient, _ = Patient.objects.get_or_create(
+                phone_number=phone, defaults={'name': name}
+            )
+        else:
+            # Create a new patient record if phone is missing
+            patient = Patient.objects.create(name=name, phone_number=None)
 
         # Check if patient already has an active token for today
         existing_token = Token.objects.filter(
@@ -242,7 +251,11 @@ def staff_manual_booking(request):
         phone = request.POST.get('phone')
         is_prio = request.POST.get('is_priority') == 'on'
         
-        patient, _ = Patient.objects.get_or_create(phone_number=phone, defaults={'name': name})
+        # Phone is optional for staff booking
+        if phone:
+            patient, _ = Patient.objects.get_or_create(phone_number=phone, defaults={'name': name})
+        else:
+            patient = Patient.objects.create(name=name, phone_number=None)
         
         # Check if patient already has an active/serving token
         existing_token = Token.objects.filter(

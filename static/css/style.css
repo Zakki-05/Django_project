@@ -809,6 +809,21 @@ body {
     font-size: 0.8rem;
 }
 
+.dev-url {
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-decoration: none;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    margin-top: -0.2rem;
+}
+
+.dev-url:hover {
+    opacity: 1;
+    text-shadow: 0 0 8px var(--accent-glow);
+}
+
 .copyright {
     font-size: 0.75rem;
     color: var(--text-muted);
