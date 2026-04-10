@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from django.utils import timezone
 import json
 from datetime import timedelta
@@ -12,7 +13,6 @@ from django.db.models import Max
 
 def index(request):
     """ Patient Portal - Show Generate Token form or current Token status """
-    # Simple check for session token
     token_id = request.session.get('current_token_id')
     if token_id:
         try:
@@ -21,41 +21,61 @@ def index(request):
                 return render(request, 'queue_board/patient_dashboard.html', {'token': token})
         except Token.DoesNotExist:
             request.session.pop('current_token_id', None)
-    
-    return render(request, 'queue_board/index.html')
+
+    clinic = ClinicSetting.objects.first()
+    return render(request, 'queue_board/index.html', {'clinic': clinic})
 
 @csrf_exempt
 def generate_token(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        phone = request.POST.get('phone')
+        name = request.POST.get('name', '').strip()
+        phone = request.POST.get('phone', '').strip()
         dept = request.POST.get('department', 'GENERAL')
-        
-        patient, _ = Patient.objects.get_or_create(phone_number=phone, defaults={'name': name})
-        
-        # Check if patient already has an active/serving/inactive token for today
+
+        # Basic validation
+        if not name or not phone or len(phone) != 10 or not phone.isdigit():
+            messages.error(request, 'Please enter a valid name and 10-digit phone number.')
+            return redirect('index')
+
+        # Get or create patient record
+        patient, _ = Patient.objects.get_or_create(
+            phone_number=phone, defaults={'name': name}
+        )
+
+        # Check if patient already has an active token for today
         existing_token = Token.objects.filter(
-            patient=patient, 
+            patient=patient,
             date=timezone.now().date(),
             status__in=['INACTIVE', 'ACTIVE', 'SERVING']
         ).first()
 
         if existing_token:
+            messages.info(request, f'You already have Token #{existing_token.token_number} for today. Showing your status.')
             request.session['current_token_id'] = existing_token.id
             return redirect('index')
 
-        # Generate new token
+        # Check clinic daily token limit
+        clinic = ClinicSetting.objects.first()
+        today_count = Token.objects.filter(date=timezone.now().date()).count()
+        max_tokens = clinic.max_tokens_per_day if clinic else 50
+
+        if today_count >= max_tokens:
+            messages.error(request, f'Sorry, the clinic has reached its maximum capacity of {max_tokens} patients for today. Please visit tomorrow.')
+            return redirect('index')
+
+        # Generate new token number
         last_token = Token.objects.filter(date=timezone.now().date()).aggregate(Max('token_number'))['token_number__max']
         next_number = (last_token or 0) + 1
-        
+
         token = Token.objects.create(
             patient=patient,
             token_number=next_number,
             department=dept,
             status='INACTIVE'
         )
-        
+
         request.session['current_token_id'] = token.id
+        messages.success(request, f'Token #{token.token_number} generated successfully! Please proceed to the clinic.')
         return redirect('index')
     return redirect('index')
 
@@ -155,10 +175,12 @@ def staff_dashboard(request):
     serving_tokens = Token.objects.filter(date=timezone.now().date(), status='SERVING').order_by('token_number')
     active_tokens = Token.objects.filter(date=timezone.now().date(), status='ACTIVE').order_by('token_number')
     inactive_tokens = Token.objects.filter(date=timezone.now().date(), status='INACTIVE').order_by('token_number')
+    total_today = Token.objects.filter(date=timezone.now().date()).count()
     return render(request, 'queue_board/staff_dashboard.html', {
         'serving_tokens': serving_tokens,
         'active_tokens': active_tokens,
-        'inactive_tokens': inactive_tokens
+        'inactive_tokens': inactive_tokens,
+        'total_today': total_today,
     })
 
 @csrf_exempt

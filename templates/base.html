@@ -3,30 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}M.B Shifa Clinic{% endblock %}</title>
-    <!-- High-end Fonts -->
+    <meta name="description" content="M.B Shifa Clinic - Digital Queue Management System. Generate your token online and track your queue position in real-time.">
+    <meta name="theme-color" content="#0a192f">
+    <title>{% block title %}M.B Shifa Clinic | Digital Queue{% endblock %}</title>
+
+    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <!-- Animated Background Blobs -->
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    
+
+    <!-- Site Header -->
     <header class="main-header">
-        <h1>M.B Shifa Clinic</h1>
-        <p>Digital Queue System</p>
+        <div class="header-content" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+            <div>
+                <h1>M.B Shifa Clinic</h1>
+                <p>Digital Queue System</p>
+            </div>
+            <nav class="auth-nav" style="display: flex; gap: 0.75rem;">
+                <a href="/admin/" class="btn btn-secondary btn-sm" title="Admin Panel">
+                    <i class="fa-solid fa-user-shield"></i> Admin
+                </a>
+                <a href="{% url 'staff_login' %}" class="btn btn-secondary btn-sm" title="Staff Login">
+                    <i class="fa-solid fa-stethoscope"></i> Staff
+                </a>
+            </nav>
+        </div>
     </header>
 
-    <main class="container">
-        {% block content %}
-        {% endblock %}
+    <!-- Toast / Message Notifications -->
+    {% if messages %}
+    <div class="messages-container" id="toast-container" role="alert" aria-live="polite">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {% if message.tags == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+            {% elif message.tags == 'error' %}
+                <i class="fa-solid fa-circle-xmark"></i>
+            {% elif message.tags == 'info' %}
+                <i class="fa-solid fa-circle-info"></i>
+            {% else %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            {% endif %}
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()" style="margin-left:auto; background:none; border:none; color:inherit; cursor:pointer; font-size:1rem; opacity:0.7;" aria-label="Dismiss">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="{% block container_class %}container{% endblock %}">
+        {% block content %}{% endblock %}
     </main>
+
+    <!-- Auto-dismiss toasts after 5 seconds -->
+    <script>
+        (function() {
+            const toasts = document.querySelectorAll('.alert');
+            toasts.forEach(function(toast) {
+                setTimeout(function() {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-8px)';
+                    toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                    setTimeout(function() { toast.remove(); }, 400);
+                }, 5000);
+            });
+        })();
+    </script>
 
     {% block extra_scripts %}{% endblock %}
 </body>

@@ -24,23 +24,36 @@ document.addEventListener("DOMContentLoaded", () => {
         let isActivating = false;
         
         const updateStatusUI = (data) => {
-            if (data.serving) document.getElementById('serving-token').innerText = data.serving;
-            if (data.estimated_wait !== undefined) document.getElementById('est-wait-time').innerText = `${data.estimated_wait} mins`;
-            
+            if (data.serving !== undefined) {
+                const el = document.getElementById('serving-token');
+                if (el) el.innerText = data.serving;
+            }
+            if (data.estimated_wait !== undefined) {
+                const el = document.getElementById('est-wait-time');
+                if (el) el.innerText = `${data.estimated_wait} min`;
+            }
+            if (data.waiting_count !== undefined) {
+                const el = document.getElementById('waiting-count');
+                if (el) el.innerText = data.waiting_count;
+            }
+
             if (data.user_status) {
                 const statusBadge = document.getElementById('token-status');
-                statusBadge.innerText = data.user_status;
-                statusBadge.className = `status-badge status-${data.user_status}`;
-                
-                // Pulsating effect for serving status on the circle
+                if (statusBadge) {
+                    statusBadge.innerText = data.user_status;
+                    statusBadge.className = `status-badge status-${data.user_status}`;
+                }
+
                 const tokenCircle = document.querySelector('.token-circle');
-                if (data.user_status === 'SERVING') {
-                    tokenCircle.style.boxShadow = '0 0 30px var(--accent-glow)';
-                    tokenCircle.style.borderColor = 'var(--accent)';
-                    tokenCircle.style.borderStyle = 'solid';
-                } else {
-                    tokenCircle.style.boxShadow = 'none';
-                    tokenCircle.style.borderStyle = 'dashed';
+                if (tokenCircle) {
+                    if (data.user_status === 'SERVING') {
+                        tokenCircle.style.boxShadow = '0 0 40px var(--accent-glow)';
+                        tokenCircle.style.borderColor = 'var(--accent)';
+                        tokenCircle.style.borderStyle = 'solid';
+                    } else {
+                        tokenCircle.style.boxShadow = 'none';
+                        tokenCircle.style.borderStyle = 'dashed';
+                    }
                 }
             }
         };

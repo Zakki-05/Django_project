@@ -1,37 +1,81 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Your Token #{{ token.token_number }} | M.B Shifa Clinic{% endblock %}
+
 {% block content %}
 <div id="patient-dashboard" class="glass-card success-card">
-    <div style="text-align: center;">
-        <span id="token-status" class="status-badge status-{{ token.status }}">{{ token.status }}</span>
-        
-        <div class="token-circle">
-            <span>Token Number</span>
-            <h2 id="user-token-display">#{{ token.token_number }}</h2>
-            <p style="font-size: 0.8rem; font-weight: 600; margin-top: 5px;">{{ token.patient.name }}</p>
+
+    <!-- Status Badge -->
+    <span id="token-status" class="status-badge status-{{ token.status }}">{{ token.status }}</span>
+
+    <!-- Responsive layout: stacked on mobile, side-by-side on tablet+ -->
+    <div class="patient-layout" style="margin-top: 1rem;">
+
+        <!-- Left: Token Circle + Patient Info -->
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div class="token-circle">
+                <span>Token Number</span>
+                <h2 id="user-token-display">#{{ token.token_number }}</h2>
+                <p style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-top: 4px;">{{ token.patient.name }}</p>
+            </div>
+
+            <!-- Department Badge -->
+            <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+                        background: rgba(94,234,212,0.08); border: 1px solid rgba(94,234,212,0.2);
+                        border-radius: 100px; padding: 0.4rem 1rem; font-size: 0.8rem; color: var(--accent);">
+                <i class="fa-solid fa-hospital-user" style="font-size: 0.75rem;"></i>
+                {{ token.get_department_display }}
+            </div>
+
+            <!-- Clinic Address -->
+            <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--card-border); width: 100%; text-align: center;">
+                <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;">Clinic Address</p>
+                <p style="font-size: 0.82rem; font-weight: 500; margin-top: 0.3rem; color: var(--text-main);">
+                    WPP8+HF Peranampattu, Tamil Nadu
+                </p>
+            </div>
         </div>
 
-        <div class="qr-placeholder">
-            <!-- Placeholder for QR Code integration -->
-        </div>
-        
-        <div class="queue-info">
-            <div class="info-box">
-                <div class="info-label">Now Serving</div>
-                <div class="info-value" id="serving-token">-</div>
+        <!-- Right: Queue Status + GPS -->
+        <div style="display: flex; flex-direction: column; gap: 1rem; justify-content: center;">
+            <!-- GPS Status Message -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 16px; padding: 1rem; text-align: center;">
+                <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.4rem;">
+                    <i class="fa-solid fa-location-dot"></i> Location Status
+                </p>
+                <p id="location-msg" style="font-size: 0.88rem; color: var(--text-muted); font-weight: 500;">
+                    Initializing Location Sync...
+                </p>
             </div>
-            <div class="info-box">
-                <div class="info-label">Est. Wait</div>
-                <div class="info-value" id="est-wait-time">- mins</div>
+
+            <!-- Queue Info Grid -->
+            <div class="queue-info">
+                <div class="info-box">
+                    <div class="info-label"><i class="fa-solid fa-stethoscope"></i>&nbsp;Now Serving</div>
+                    <div class="info-value" id="serving-token">-</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label"><i class="fa-regular fa-clock"></i>&nbsp;Est. Wait</div>
+                    <div class="info-value" id="est-wait-time">- min</div>
+                </div>
             </div>
-        </div>
-        
-        <p id="location-msg" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Initializing Location Sync...</p>
-        
-        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
-            <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Clinic Address</p>
-            <p style="font-size: 0.8rem; font-weight: 500; margin-top: 0.3rem;">WPP8+HF Peranampattu, Tamil Nadu</p>
+
+            <!-- Waiting count info -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 14px; padding: 1rem; text-align:center;">
+                <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.3rem;">People Ahead of You</p>
+                <p id="waiting-count" style="font-size: 1.6rem; font-weight: 800; color: var(--text-main);">-</p>
+            </div>
+
+            <!-- Instructions -->
+            <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.8; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 1rem;">
+                <p style="font-weight: 600; color: var(--text-main); margin-bottom: 0.3rem;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--accent);"></i>&nbsp;How it works
+                </p>
+                <p>1. Wait for your token to activate (within 1km of clinic).</p>
+                <p>2. Staff will call your number when it's your turn.</p>
+                <p>3. You'll be notified when it's time to enter.</p>
+            </div>
         </div>
     </div>
 </div>
