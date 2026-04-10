@@ -34,30 +34,27 @@
         </h3>
         <form action="{% url 'staff_manual_booking' %}" method="POST">
             {% csrf_token %}
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
-                <div class="form-group" style="margin-bottom: 0;">
+            <div class="booking-grid">
+                <div class="form-group">
                     <label for="m_name" style="font-size: 0.82rem;">Patient Name</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-user input-icon"></i>
                         <input type="text" id="m_name" name="name" required placeholder="Full Name">
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
+                <div class="form-group">
                     <label for="m_phone" style="font-size: 0.82rem;">Phone Number</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-phone input-icon"></i>
                         <input type="tel" id="m_phone" name="phone" required placeholder="10 Digits" pattern="[0-9]{10}">
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.6rem; padding: 0.9rem 0;">
-                    <input type="checkbox" id="m_prio" name="is_priority"
-                           style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--warning); flex-shrink: 0;">
-                    <label for="m_prio" style="color: var(--warning); font-size: 0.92rem; cursor: pointer; font-weight: 600;">
-                        ★ Priority
-                    </label>
+                <div class="priority-checkbox-wrapper">
+                    <input type="checkbox" id="m_prio" name="is_priority">
+                    <label for="m_prio">★ Priority</label>
                 </div>
-                <button type="submit" class="btn btn-primary btn-book">
-                    <i class="fa-solid fa-calendar-check"></i> Book Patient
+                <button type="submit" class="btn btn-primary btn-book" style="margin-top: auto;">
+                    <i class="fa-solid fa-calendar-check"></i> Book Now
                 </button>
             </div>
         </form>

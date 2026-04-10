@@ -601,6 +601,45 @@ body {
     gap: 1rem;
 }
 
+/* Manual Booking Responsive Grid */
+.booking-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: end;
+}
+.booking-grid .form-group { margin-bottom: 0; }
+
+.priority-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 0;
+    min-height: 52px;
+}
+.priority-checkbox-wrapper input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--warning);
+    flex-shrink: 0;
+}
+.priority-checkbox-wrapper label {
+    color: var(--warning);
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-book { height: 52px; width: 100%; }
+
+@media (min-width: 900px) {
+    .booking-grid {
+        grid-template-columns: 1fr 1fr 160px auto;
+    }
+}
+
+
 .staff-card {
     padding: 1.25rem;
     border-radius: 16px;
