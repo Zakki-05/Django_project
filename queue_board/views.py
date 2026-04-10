@@ -158,6 +158,18 @@ def staff_login_view(request):
     if request.method == 'POST':
         u = request.POST.get('username')
         p = request.POST.get('password')
+        
+        # Fix for Render Ephemeral DB: Instantly create accounts if wiped
+        from django.contrib.auth.models import User
+        if u == 'admin' and p == 'admin123':
+            if not User.objects.filter(username='admin').exists():
+                User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+        elif u == 'staff' and p == 'staff123':
+            if not User.objects.filter(username='staff').exists():
+                staff_user = User.objects.create_user('staff', 'staff@example.com', 'staff123')
+                staff_user.is_staff = True
+                staff_user.save()
+
         user = authenticate(request, username=u, password=p)
         if user is not None and user.is_staff:
             login(request, user)
