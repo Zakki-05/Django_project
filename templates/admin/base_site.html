@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:'Django site admin' }}{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:'Django administration' }}</a></div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block footer %}
+<div id="footer" style="padding: 15px; margin-top: 20px; text-align: center; border-top: 1px solid #ccc; font-size: 13px; color: #666;">
+    <p style="margin: 0;"><strong>Developed & Maintained By Zakki</strong></p>
+    <p style="margin: 0;">&copy; 2026 M.B Shifa Clinic. All rights reserved.</p>
+</div>
+{{ block.super }}
+{% endblock %}

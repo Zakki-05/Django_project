@@ -32,6 +32,9 @@
                 <p>Digital Queue System</p>
             </div>
             <nav class="auth-nav" style="display: flex; gap: 0.75rem;">
+                <a href="{% url 'admin:index' %}" class="btn btn-warning btn-sm" title="Admin">
+                    <i class="fa-solid fa-user-shield"></i> Admin
+                </a>
                 <a href="{% url 'staff_login' %}" class="btn btn-secondary btn-sm" title="Staff Login">
                     <i class="fa-solid fa-stethoscope"></i> Staff
                 </a>
@@ -66,6 +69,18 @@
     <main class="{% block container_class %}container{% endblock %}">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Footer Section -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-divider"></div>
+            <div class="developer-details">
+                <span class="dev-label">Developed & Maintained By</span>
+                <span class="dev-name" title="Developer"><i class="fa-solid fa-laptop-code"></i> Zakki</span>
+                <span class="copyright">&copy; 2026 M.B Shifa Clinic. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
 
     <!-- Auto-dismiss toasts after 5 seconds -->
     <script>
