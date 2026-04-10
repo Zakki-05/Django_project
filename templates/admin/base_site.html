@@ -9,9 +9,13 @@
 {% block nav-global %}{% endblock %}
 
 {% block footer %}
-<div id="footer" style="padding: 15px; margin-top: 20px; text-align: center; border-top: 1px solid #ccc; font-size: 13px; color: #666;">
-    <p style="margin: 0;"><strong>Developed & Maintained By <a href="https://codebyzakki.netlify.app/" target="_blank" style="color: inherit; text-decoration: underline;">Zakki</a></strong></p>
-    <p style="margin: 0;">&copy; 2026 M.B Shifa Clinic. All rights reserved.</p>
+<div id="footer" style="padding: 15px; margin-top: 20px; text-align: center; border-top: 1px solid #ccc; font-size: 13px; color: #666; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+    <p style="margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Developed & Maintained By</p>
+    <a href="https://codebyzakki.netlify.app/" target="_blank" style="display: block; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #5EEAD4; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+         <img src="{% static 'developer.jpeg' %}" alt="Developer" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=Developer&background=5EEAD4&color=0a192f&bold=true'">
+    </a>
+    <p style="margin: 0;"><a href="https://codebyzakki.netlify.app/" target="_blank" style="color: #5EEAD4; text-decoration: none; font-weight: 700;">codebyzakki.netlify.app</a></p>
+    <p style="margin: 0; opacity: 0.6;">&copy; 2026 M.B Shifa Clinic. All rights reserved.</p>
 </div>
 {{ block.super }}
 {% endblock %}
