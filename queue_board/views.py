@@ -33,26 +33,33 @@ def generate_token(request):
         dept = request.POST.get('department', 'GENERAL')
 
         # Basic validation
-        if not name or not phone or len(phone) != 10 or not phone.isdigit():
-            messages.error(request, 'Please enter a valid name and 10-digit phone number.')
+        if not name:
+            messages.error(request, 'Please enter your name.')
+            return redirect('index')
+            
+        if phone and (len(phone) != 10 or not phone.isdigit()):
+            messages.error(request, 'Please enter a valid 10-digit phone number or leave it blank.')
             return redirect('index')
 
-        # Get or create patient record
-        patient, _ = Patient.objects.get_or_create(
-            phone_number=phone, defaults={'name': name}
-        )
+        # Get or create patient record if phone is provided
+        if phone:
+            patient, _ = Patient.objects.get_or_create(
+                phone_number=phone, defaults={'name': name}
+            )
+            # Check if patient already has an active token for today
+            existing_token = Token.objects.filter(
+                patient=patient,
+                date=timezone.now().date(),
+                status__in=['INACTIVE', 'ACTIVE', 'SERVING']
+            ).first()
 
-        # Check if patient already has an active token for today
-        existing_token = Token.objects.filter(
-            patient=patient,
-            date=timezone.now().date(),
-            status__in=['INACTIVE', 'ACTIVE', 'SERVING']
-        ).first()
-
-        if existing_token:
-            messages.info(request, f'You already have Token #{existing_token.token_number} for today. Showing your status.')
-            request.session['current_token_id'] = existing_token.id
-            return redirect('index')
+            if existing_token:
+                messages.info(request, f'You already have Token #{existing_token.token_number} for today. Showing your status.')
+                request.session['current_token_id'] = existing_token.id
+                return redirect('index')
+        else:
+            # Create a new patient record for each booking without a phone number
+            patient = Patient.objects.create(name=name)
 
         # Check clinic daily token limit
         clinic = ClinicSetting.objects.first()
@@ -238,21 +245,27 @@ def staff_action(request):
 @login_required(login_url='staff_login')
 def staff_manual_booking(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        phone = request.POST.get('phone')
+        name = request.POST.get('name', '').strip()
+        phone = request.POST.get('phone', '').strip()
         is_prio = request.POST.get('is_priority') == 'on'
         
-        patient, _ = Patient.objects.get_or_create(phone_number=phone, defaults={'name': name})
-        
-        # Check if patient already has an active/serving token
-        existing_token = Token.objects.filter(
-            patient=patient, 
-            date=timezone.now().date(),
-            status__in=['INACTIVE', 'ACTIVE', 'SERVING']
-        ).first()
-
-        if existing_token:
+        if not name:
             return redirect('staff_dashboard')
+
+        if phone:
+            patient, _ = Patient.objects.get_or_create(phone_number=phone, defaults={'name': name})
+            
+            # Check if patient already has an active/serving token
+            existing_token = Token.objects.filter(
+                patient=patient, 
+                date=timezone.now().date(),
+                status__in=['INACTIVE', 'ACTIVE', 'SERVING']
+            ).first()
+
+            if existing_token:
+                return redirect('staff_dashboard')
+        else:
+            patient = Patient.objects.create(name=name)
 
         # Generate new token
         last_token = Token.objects.filter(date=timezone.now().date()).aggregate(Max('token_number'))['token_number__max']
