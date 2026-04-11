@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: clinic-queue-board
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn clinic_system.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: DEBUG
+        value: "False"
