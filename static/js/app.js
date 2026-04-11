@@ -23,6 +23,63 @@ document.addEventListener("DOMContentLoaded", () => {
     if (patientDashboard) {
         let isActivating = false;
         
+        let previousStatus = null;
+
+        const playAlarm = () => {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                const buzz = (time) => {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    oscillator.type = 'square'; // More buzzer-like
+                    oscillator.frequency.setValueAtTime(440, time);
+                    
+                    gainNode.gain.setValueAtTime(0, time);
+                    gainNode.gain.linearRampToValueAtTime(0.3, time + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0, time + 0.4);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    oscillator.start(time);
+                    oscillator.stop(time + 0.5);
+                };
+
+                // Play 3 buzzes
+                const now = audioCtx.currentTime;
+                buzz(now);
+                buzz(now + 0.6);
+                buzz(now + 1.2);
+                
+                if ("vibrate" in navigator) {
+                    navigator.vibrate([400, 200, 400, 200, 400]);
+                }
+            } catch (e) {
+                console.error("Could not play alarm:", e);
+            }
+        };
+
+        const showTurnNotification = () => {
+            const overlay = document.createElement('div');
+            overlay.innerHTML = `
+                <div style="position:fixed; top:0; left:0; width:100%; height:100%; 
+                            background:rgba(0,0,0,0.9); z-index:9999; display:flex; 
+                            flex-direction:column; align-items:center; justify-content:center;
+                            color:white; text-align:center; padding:2rem; backdrop-filter:blur(10px);">
+                    <div style="font-size:5rem; color:var(--accent); margin-bottom:1rem;">
+                        <i class="fa-solid fa-bell-concierge fa-bounce"></i>
+                    </div>
+                    <h1 style="font-size:3rem; font-weight:900; margin-bottom:1rem; color:white;">IT'S YOUR TURN!</h1>
+                    <p style="font-size:1.5rem; margin-bottom:2rem; color:var(--text-muted);">Please proceed to the consultation room.</p>
+                    <button id="close-notif" class="btn btn-primary" style="padding:1rem 3rem; font-size:1.2rem;">OK, I'm Going</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            document.getElementById('close-notif').onclick = () => {
+                overlay.remove();
+            };
+        };
+
         const updateStatusUI = (data) => {
             if (data.serving !== undefined) {
                 const el = document.getElementById('serving-token');
@@ -38,6 +95,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (data.user_status) {
+                // Play alarm if status just changed to SERVING
+                if (data.user_status === 'SERVING' && previousStatus !== 'SERVING') {
+                    playAlarm();
+                    showTurnNotification();
+                }
+                previousStatus = data.user_status;
+
                 const statusBadge = document.getElementById('token-status');
                 if (statusBadge) {
                     statusBadge.innerText = data.user_status;
