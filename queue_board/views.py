@@ -33,14 +33,22 @@ def generate_token(request):
         dept = request.POST.get('department', 'GENERAL')
 
         # Basic validation
-        if not name or not phone or len(phone) != 10 or not phone.isdigit():
-            messages.error(request, 'Please enter a valid name and 10-digit phone number.')
+        if not name:
+            messages.error(request, 'Please enter a valid name.')
+            return redirect('index')
+            
+        if phone and (len(phone) != 10 or not phone.isdigit()):
+            messages.error(request, 'Please enter a valid 10-digit phone number or leave it blank.')
             return redirect('index')
 
         # Get or create patient record
-        patient, _ = Patient.objects.get_or_create(
-            phone_number=phone, defaults={'name': name}
-        )
+        if phone:
+            patient, _ = Patient.objects.get_or_create(
+                phone_number=phone, defaults={'name': name}
+            )
+        else:
+            # Create a new patient record without phone number
+            patient = Patient.objects.create(name=name, phone_number=None)
 
         # Check if patient already has an active token for today
         existing_token = Token.objects.filter(
@@ -238,11 +246,17 @@ def staff_action(request):
 @login_required(login_url='staff_login')
 def staff_manual_booking(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        phone = request.POST.get('phone')
+        name = request.POST.get('name', '').strip()
+        phone = request.POST.get('phone', '').strip()
         is_prio = request.POST.get('is_priority') == 'on'
         
-        patient, _ = Patient.objects.get_or_create(phone_number=phone, defaults={'name': name})
+        if not name:
+            return redirect('staff_dashboard')
+
+        if phone:
+            patient, _ = Patient.objects.get_or_create(phone_number=phone, defaults={'name': name})
+        else:
+            patient = Patient.objects.create(name=name, phone_number=None)
         
         # Check if patient already has an active/serving token
         existing_token = Token.objects.filter(
