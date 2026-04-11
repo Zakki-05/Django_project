@@ -127,3 +127,8 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Twilio Configuration (Replace with your own credentials)
+TWILIO_ACCOUNT_SID = 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+TWILIO_AUTH_TOKEN = 'your_auth_token_here'
+TWILIO_PHONE_NUMBER = '+1234567890'

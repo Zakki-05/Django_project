@@ -8,7 +8,7 @@ from django.utils import timezone
 import json
 from datetime import timedelta
 from .models import ClinicSetting, Patient, Token
-from .utils import haversine
+from .utils import haversine, send_queue_sms
 from django.db.models import Max
 
 def index(request):
@@ -83,6 +83,12 @@ def generate_token(request):
         )
 
         request.session['current_token_id'] = token.id
+        
+        # Send SMS Confirmation
+        if patient.phone_number:
+            msg = f"M.B Shifa Clinic: Your Token is #{token.token_number}. Track it here: {request.build_absolute_uri('/')}"
+            send_queue_sms(patient.phone_number, msg)
+
         messages.success(request, f'Token #{token.token_number} generated successfully! Please proceed to the clinic.')
         return redirect('index')
     return redirect('index')
@@ -225,6 +231,11 @@ def staff_action(request):
                 if next_token:
                     next_token.status = 'SERVING'
                     next_token.save()
+                    
+                    # Send "Your Turn" SMS
+                    if next_token.patient.phone_number:
+                        msg = f"M.B Shifa Clinic: IT IS YOUR TURN! Token #{next_token.token_number}, please proceed to the consultation room."
+                        send_queue_sms(next_token.patient.phone_number, msg)
             elif token_id:
                 token = Token.objects.get(id=token_id)
                 if action == 'COMPLETE':
@@ -272,12 +283,17 @@ def staff_manual_booking(request):
         last_token = Token.objects.filter(date=timezone.now().date()).aggregate(Max('token_number'))['token_number__max']
         next_number = (last_token or 0) + 1
         
-        Token.objects.create(
+        token = Token.objects.create(
             patient=patient,
             token_number=next_number,
             status='ACTIVE', # Automatic active for staff booking
             is_priority=is_prio,
             activated_at=timezone.now()
         )
+        
+        # Send SMS Confirmation for staff booking
+        if patient.phone_number:
+            msg = f"M.B Shifa Clinic: Staff has generated Token #{token.token_number} for you. Track here: {request.build_absolute_uri('/')}"
+            send_queue_sms(patient.phone_number, msg)
     return redirect('staff_dashboard')
 
