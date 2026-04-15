@@ -64,6 +64,24 @@ body {
     color: var(--accent) !important;
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
+    padding: 12px 18px !important;
+}
+
+/* Sidebar Styling */
+#content-related {
+    margin-right: 0 !important;
+    width: auto !important;
+    min-width: 250px !important;
+}
+
+.actionlist li {
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    padding: 10px 0 !important;
+}
+
+.actionlist li a {
+    color: var(--accent) !important;
+    font-weight: 600 !important;
 }
 
 /* Tables */

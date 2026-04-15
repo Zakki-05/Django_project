@@ -1,0 +1,105 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <!-- Premium Stats Row — Matching Staff Panel UI -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: rgba(94,234,212,0.08); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(94,234,212,0.2); backdrop-filter: blur(10px);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">System Health</div>
+            <div style="font-size: 2rem; font-weight: 800; color: var(--accent); margin-top: 5px;">Active</div>
+        </div>
+        <div style="background: rgba(251,191,36,0.08); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(251,191,36,0.2); backdrop-filter: blur(10px);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Security Status</div>
+            <div style="font-size: 2rem; font-weight: 800; color: var(--warning); margin-top: 5px;">Encrypted</div>
+        </div>
+        <div style="background: rgba(255,77,77,0.08); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(255,77,77,0.2); backdrop-filter: blur(10px);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Database</div>
+            <div style="font-size: 2rem; font-weight: 800; color: var(--danger); margin-top: 5px;">PostgreSQL</div>
+        </div>
+        <div style="background: rgba(134,239,172,0.06); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(134,239,172,0.2); backdrop-filter: blur(10px);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Deployment</div>
+            <div style="font-size: 2rem; font-weight: 800; color: #86efac; margin-top: 5px;">Production</div>
+        </div>
+    </div>
+
+    {% if app_list %}
+        {% for app in app_list %}
+            <div class="module" style="margin-bottom: 2rem; border-left: 5px solid var(--accent) !important;">
+                <table>
+                <caption>
+                    <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+                </caption>
+                {% for model in app.models %}
+                    <tr class="model-{{ model.object_name|lower }}">
+                    {% if model.admin_url %}
+                        <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                    {% else %}
+                        <th scope="row">{{ model.name }}</th>
+                    {% endif %}
+
+                    {% if model.add_url %}
+                        <td><a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a></td>
+                    {% else %}
+                        <td>&nbsp;</td>
+                    {% endif %}
+
+                    {% if model.change_url %}
+                        {% if model.view_only %}
+                        <td><a href="{{ model.change_url }}" class="viewlink">{% translate 'View' %}</a></td>
+                        {% else %}
+                        <td><a href="{{ model.change_url }}" class="changelink">{% translate 'Change' %}</a></td>
+                        {% endif %}
+                    {% else %}
+                        <td>&nbsp;</td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{% translate 'You don’t have permission to view or edit anything.' %}</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related" style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px);">
+    <div class="module" id="recent-actions-module" style="background: transparent !important; border: none !important; backdrop-filter: none !important;">
+        <h2 style="background: transparent !important; padding: 0 !important; margin-bottom: 1rem !important; font-size: 1.1rem !important;">{% translate 'Recent actions' %}</h2>
+        <h3 style="background: transparent !important; padding: 0 !important; font-size: 0.8rem !important; color: var(--text-muted) !important;">{% translate 'My actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% translate 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0; font-size: 0.85rem;">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% translate 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}
