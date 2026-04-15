@@ -41,22 +41,39 @@
                 {% for model in app.models %}
                     <tr class="model-{{ model.object_name|lower }}">
                     {% if model.admin_url %}
-                        <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                        <th scope="row" style="display: flex; align-items: center; gap: 10px;">
+                            {% if model.object_name == 'ClinicSetting' %}
+                                <i class="fa-solid fa-hospital" style="color: var(--accent); width: 20px;"></i>
+                            {% elif model.object_name == 'Patient' %}
+                                <i class="fa-solid fa-user-injured" style="color: var(--accent); width: 20px;"></i>
+                            {% elif model.object_name == 'Token' %}
+                                <i class="fa-solid fa-ticket" style="color: var(--accent); width: 20px;"></i>
+                            {% elif model.object_name == 'Staff' %}
+                                <i class="fa-solid fa-user-md" style="color: var(--accent); width: 20px;"></i>
+                            {% elif model.object_name == 'User' %}
+                                <i class="fa-solid fa-users-gear" style="color: var(--accent); width: 20px;"></i>
+                            {% elif model.object_name == 'Group' %}
+                                <i class="fa-solid fa-tags" style="color: var(--accent); width: 20px;"></i>
+                            {% else %}
+                                <i class="fa-solid fa-cube" style="color: var(--accent); width: 20px;"></i>
+                            {% endif %}
+                            <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                        </th>
                     {% else %}
                         <th scope="row">{{ model.name }}</th>
                     {% endif %}
 
                     {% if model.add_url %}
-                        <td><a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a></td>
+                        <td><a href="{{ model.add_url }}" class="addlink btn-admin-sm"><i class="fa-solid fa-plus"></i> {% translate 'Add' %}</a></td>
                     {% else %}
                         <td>&nbsp;</td>
                     {% endif %}
 
                     {% if model.change_url %}
                         {% if model.view_only %}
-                        <td><a href="{{ model.change_url }}" class="viewlink">{% translate 'View' %}</a></td>
+                        <td><a href="{{ model.change_url }}" class="viewlink btn-admin-sm"><i class="fa-solid fa-eye"></i> {% translate 'View' %}</a></td>
                         {% else %}
-                        <td><a href="{{ model.change_url }}" class="changelink">{% translate 'Change' %}</a></td>
+                        <td><a href="{{ model.change_url }}" class="changelink btn-admin-sm"><i class="fa-solid fa-pen-to-square"></i> {% translate 'Change' %}</a></td>
                         {% endif %}
                     {% else %}
                         <td>&nbsp;</td>

@@ -127,6 +127,32 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 3px var(--accent-glow) !important;
 }
 
+#searchbar {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 60px !important;
+    padding: 10px 25px !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    margin-bottom: 20px !important;
+    font-size: 0.9rem !important;
+}
+
+#searchbar:focus {
+    border-color: var(--accent) !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+}
+
+#changelist-search {
+    padding: 20px 0 !important;
+}
+
+#changelist-search input[type=submit] {
+    margin-left: 10px !important;
+    border-radius: 60px !important;
+    padding: 8px 20px !important;
+}
+
 /* Buttons */
 .button, input[type=submit], input[type=button], .submit-row input, a.addlink {
     background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%) !important;
@@ -144,6 +170,29 @@ input:focus, select:focus, textarea:focus {
 .button:hover, input[type=submit]:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 5px 15px rgba(94, 234, 212, 0.4) !important;
+}
+
+.btn-admin-sm {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    text-transform: uppercase !important;
+    transition: all 0.2s ease !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-muted) !important;
+}
+
+.btn-admin-sm:hover {
+    background: var(--card-bg) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+    transform: translateY(-1px) !important;
 }
 
 .button.default, input[type=submit].default {
