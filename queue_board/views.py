@@ -7,7 +7,12 @@ from django.contrib import messages
 from django.utils import timezone
 import json
 from datetime import timedelta
-from .models import ClinicSetting, Patient, Token
+from .models import ClinicSetting, Patient, Token, Staff
+
+def staff_list(request):
+    """ Public view to display all staff members """
+    staff_members = Staff.objects.all().order_by('joined_date')
+    return render(request, 'queue_board/staff_list.html', {'staff_members': staff_members})
 from .utils import haversine, send_queue_sms
 from django.db.models import Max
 

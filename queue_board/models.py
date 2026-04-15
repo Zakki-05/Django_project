@@ -82,3 +82,16 @@ class Token(models.Model):
             ahead_count = priority_count + regular_ahead
 
         return ahead_count * avg_time
+
+class Staff(models.Model):
+    name = models.CharField(max_length=150)
+    role = models.CharField(max_length=100)
+    qualification = models.CharField(max_length=200)
+    experience = models.CharField(max_length=50) # e.g. "5 Years"
+    phone = models.CharField(max_length=15)
+    email = models.EmailField()
+    image = models.ImageField(upload_to='staff_images/')
+    joined_date = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.name} - {self.role}"
