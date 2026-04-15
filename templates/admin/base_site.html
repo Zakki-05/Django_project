@@ -1,17 +1,35 @@
 {% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/admin_theme.css' %}">
+{% endblock %}
 
 {% block title %}{{ title }} | {{ site_title|default:'Django site admin' }}{% endblock %}
 
 {% block branding %}
-<div id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:'Django administration' }}</a></div>
+<div id="site-name">
+    <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; gap: 10px;">
+        <span style="background: var(--accent); color: #0a192f; padding: 4px 8px; border-radius: 6px; font-weight: 900;">MB</span>
+        {{ site_header|default:'Django administration' }}
+    </a>
+</div>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
+{% block nav-global %}
+<div class="admin-blobs">
+    <div class="admin-blob admin-blob-1"></div>
+    <div class="admin-blob admin-blob-2"></div>
+</div>
+{% endblock %}
 
 {% block footer %}
-<div id="footer" style="padding: 15px; margin-top: 20px; text-align: center; border-top: 1px solid #ccc; font-size: 13px; color: #666;">
-    <p style="margin: 0;"><strong>Developed & Maintained By <a href="https://codebyzakki.netlify.app/" target="_blank" style="color: inherit; text-decoration: underline;">Zakki</a></strong></p>
+<div id="footer" style="padding: 20px; margin-top: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px; color: var(--text-muted);">
+    <p style="margin: 0; margin-bottom: 5px;"><strong>Developed & Maintained By <a href="https://codebyzakki.netlify.app/" target="_blank" style="color: var(--accent); text-decoration: none;">Zakki</a></strong></p>
     <p style="margin: 0;">&copy; 2026 M.B Shifa Clinic. All rights reserved.</p>
 </div>
-{{ block.super }}
 {% endblock %}
